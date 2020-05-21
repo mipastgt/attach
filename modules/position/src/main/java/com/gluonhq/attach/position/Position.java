@@ -35,33 +35,55 @@ package com.gluonhq.attach.position;
  */
 public final class Position {
 
+    private final long utcTimeMillis;
     private final double latitude;
     private final double longitude;
     private final double altitude;
+    private final double speed;
+    private final double bearing;
+    private final double accuracy;
 
     /**
-     * Construct a new position with the specified <code>latitude</code> and
-     * <code>longitude</code>. It sets the <code>altitude</code> as 0.0.
+     * Construct a new position with the specified <code>utcTimeMillis</code>, <code>latitude</code> and
+     * <code>longitude</code>. It sets the <code>altitude</code> as NaN.
      *
+     * @param utcTimeMillis the UTC timestamp of the new position in milliseconds since January 1, 1970.
      * @param latitude the latitude coordinate of the new position
      * @param longitude the longitude coordinate of the new position
      */
-    public Position(double latitude, double longitude) {
-        this(latitude, longitude, 0.0);
+    public Position(long utcTimeMillis, double latitude, double longitude) {
+        this(utcTimeMillis, latitude, longitude, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     /**
      * Construct a new position with the specified <code>latitude</code>,
-     * <code>longitude</code> and <code>altitude</code>.
+     * <code>longitude</code>, <code>altitude</code>, <code>speed</code>, <code>bearing</code> and <code>accuracy</code>.
      *
+     * @param utcTimeMillis the UTC timestamp of the new position in milliseconds since January 1, 1970.
      * @param latitude the latitude coordinate of the new position
      * @param longitude the longitude coordinate of the new position
      * @param altitude the altitude of the new position
+     * @param speed the speed of the new position
+     * @param bearing the bearing of the new position
+     * @param accuracy the horizontal accuracy of the new position
      */
-    public Position(double latitude, double longitude, double altitude) {
+    public Position(long utcTimeMillis, double latitude, double longitude, double altitude, double speed, double bearing, double accuracy) {
+        this.utcTimeMillis = utcTimeMillis;
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = altitude;
+        this.speed = speed;
+        this.bearing = bearing;
+        this.accuracy = accuracy;
+    }
+
+    /**
+     * Return the UTC timestamp of the position in milliseconds since January 1, 1970.
+     *
+     * @return a double representing the latitude coordinate
+     */
+    public final long getUtcTimeMillis() {
+        return this.utcTimeMillis;
     }
 
     /**
@@ -85,15 +107,78 @@ public final class Position {
     /**
      * Return the altitude of the position, above mean sea level, in meters.
      *
-     * @return a double representing the altitude in meters
+     * @return a double representing the altitude in meters or NaN if no value is available
      */
     public final double getAltitude() {
         return altitude;
     }
 
+    /**
+     * Return the speed in meters per second.
+     *
+     * @return a double representing the speed in meters per second or NaN if no value is available
+     */
+    public final double getSpeed() {
+        return speed;
+    }
+
+    /**
+     * Return the bearing in degrees.
+     *
+     * @return a double representing the bearing in degrees or NaN if no value is available
+     */
+    public final double getBearing() {
+        return bearing;
+    }
+
+    /**
+     * Return the horizontal accuracy of the position in meters.
+     *
+     * @return a double representing the horizontal accuracy of the position in meters or NaN if no value is available
+     */
+    public final double getAccuracy() {
+        return accuracy;
+    }
+
+	/**
+	 * Return whether we have an altitude value.
+	 *
+	 * @return a boolean which indicates whether we have an altitude value.
+	 */
+	public final boolean hasAltitude() {
+		return !Double.isNaN(altitude);
+	}
+
+	/**
+	 * Return whether we have a speed value.
+	 *
+	 * @return a boolean which indicates whether we have a speed value.
+	 */
+	public final boolean hasSpeed() {
+		return !Double.isNaN(speed);
+	}
+
+	/**
+	 * Return whether we have a bearing value.
+	 *
+	 * @return a boolean which indicates whether we have a bearing value.
+	 */
+	public final boolean hasBearing() {
+		return !Double.isNaN(bearing);
+	}
+
+	/**
+	 * Return whether we have a horizontal accuracy value.
+	 *
+	 * @return a boolean which indicates whether we have a horizontal accuracy value.
+	 */
+	public final boolean hasAccuracy() {
+		return !Double.isNaN(accuracy);
+	}
+
     @Override
     public String toString() {
-        return "Position{" + "latitude=" + latitude + ", longitude=" + longitude + ", altitude=" + altitude + '}';
+        return "Position{" + "utcTimeMillis=" + utcTimeMillis + ", latitude=" + latitude + ", longitude=" + longitude + ", altitude=" + altitude + '}';
     }
 
 }

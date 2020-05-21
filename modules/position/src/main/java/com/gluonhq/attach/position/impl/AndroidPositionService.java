@@ -127,17 +127,18 @@ public class AndroidPositionService implements PositionService {
     private static native void stopObserver();
 
     // callback
-    private static void setLocation(double lat, double lon, double alt) {
+    private static void setLocation(long utcTimeMillis, double lat, double lon, double alt,
+    	double speed, double bearing, double accuracy) {
         double altitudeMeanSeaLevel = alt;
-        if (alt != 0.0) {
-            try {
-                double offset = gh.heightOffset(lon, lat, alt);
-                altitudeMeanSeaLevel = alt - offset;
-            } catch (Exception ex) {
-                LOG.log(Level.WARNING, "Error getting altitude mean sea level", ex);
-            }
+        if (!Double.isNaN(alt)) {
+			try {
+				double offset = gh.heightOffset(lon, lat, alt);
+				altitudeMeanSeaLevel = alt - offset;
+			} catch (Exception ex) {
+				LOG.log(Level.WARNING, "Error getting altitude mean sea level", ex);
+			}
         }
-        Position p = new Position(lat, lon, altitudeMeanSeaLevel);
+        Position p = new Position(utcTimeMillis, lat, lon, altitudeMeanSeaLevel, speed, bearing, accuracy);
         Platform.runLater(() -> position.set(p));
     }
 

@@ -136,8 +136,9 @@ public class IOSPositionService implements PositionService {
     private static native void enableDebug();
     
     // callback
-    private static void setLocation(double lat, double lon, double alt) {
-        Position p = new Position(lat, lon, alt);
+    private static void setLocation(long utcTimeMillis, double lat, double lon, double alt,
+    	double speed, double bearing, double accuracy) {
+        Position p = new Position(utcTimeMillis, lat, lon, alt, speed, bearing, accuracy);
         Platform.runLater(() -> position.set(p));
     }
 

@@ -130,10 +130,11 @@ JNIEXPORT void JNICALL Java_com_gluonhq_attach_position_impl_AndroidPositionServ
 ///////////////////////////
 
 // the JNIEnv passed here is the Dalvik JNIEnv, do not use it to call into GraalVM!
-JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_DalvikPositionService_updatePositionNative(JNIEnv *env, jobject service, jdouble jlat, jdouble jlon, jdouble jalt) {
-    ATTACH_LOG_FINE("Native layer got new position: %lf, %lf, %lf\n", jlat, jlon, jalt);
+JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_DalvikPositionService_updatePositionNative(JNIEnv *env, jobject service, jlong utcTimeMillis, jdouble jlat, jdouble jlon, jdouble jalt,
+	jdouble jspeed, jdouble jbearing, jdouble jaccuracy) {
+    ATTACH_LOG_FINE("Native layer got new position: %ld, %lf, %lf, %lf\n", utcTimeMillis, jlat, jlon, jalt);
     ATTACH_GRAAL();
-    (*graalEnv)->CallStaticVoidMethod(graalEnv, jGraalPositionClass, jGraalSetLocationMethod, jlat, jlon, jalt);
+    (*graalEnv)->CallStaticVoidMethod(graalEnv, jGraalPositionClass, jGraalSetLocationMethod, utcTimeMillis, jlat, jlon, jalt, jspeed, jbearing, jaccuracy);
     DETACH_GRAAL();
 }
 

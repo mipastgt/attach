@@ -57,9 +57,13 @@ public class DalvikPositionService implements LocationListener {
 
     private static final String TAG = "GluonAttach";
 
+    public static final String UTC_TIME_MILLIS = "utcTimeMillis";
     public static final String LONGITUDE = "longitude";
     public static final String LATITUDE = "latitude";
     public static final String ALTITUDE = "altitude";
+    public static final String SPEED = "speed";
+    public static final String BEARING = "bearing";
+    public static final String ACCURACY = "accuracy";
 
     private Activity activityContext;
     private LocationManager locationManager;
@@ -115,8 +119,8 @@ public class DalvikPositionService implements LocationListener {
     public void onLocationChanged(Location location) {
         if (location != null) {
             if (debug) {
-                Log.v(TAG, String.format("Android location changed: %f / %f / %f",
-                        location.getLatitude(), location.getLongitude(), location.getAltitude()));
+                Log.v(TAG, String.format("Android location changed: &d / %f / %f / %f",
+                    location.getTime(), location.getLatitude(), location.getLongitude(), location.getAltitude()));
             }
             updatePosition(location);
         }
@@ -177,8 +181,8 @@ public class DalvikPositionService implements LocationListener {
         Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
         if (lastKnownLocation != null) {
             if (debug) {
-                Log.v(TAG, String.format("Last known location for provider %s: %f / %f / %f",
-                        locationProvider, lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), lastKnownLocation.getAltitude()));
+                Log.v(TAG, String.format("Last known location for provider %s: %d / %f / %f / %f",
+                        locationProvider, lastKnownLocation.getTime(), lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), lastKnownLocation.getAltitude()));
             }
             updatePosition(lastKnownLocation);
         }
@@ -252,17 +256,23 @@ public class DalvikPositionService implements LocationListener {
     }
 
     private void updatePosition(Location location) {
-        updatePosition(location.getLatitude(), location.getLongitude(), location.getAltitude());
+        updatePosition(
+        	location.getTime(), location.getLatitude(), location.getLongitude(),
+        	location.hasAltitude() ? location.getAltitude() : Double.NaN,
+        	location.hasSpeed() ? location.getSpeed() : Double.NaN,
+        	location.hasBearing() ? location.getBearing() : Double.NaN,
+        	location.hasAccuracy() ? location.getAccuracy() : Double.NaN);
     }
 
-    private void updatePosition(double latitude, double longitude, double altitude) {
+    private void updatePosition(long utcTimeMillis, double latitude, double longitude, double altitude,
+    	double speed, double bearing, double accuracy) {
         if (debug) {
-            Log.v(TAG, "[DALVIKPOSITION] update to "+latitude+", " + longitude+", "+altitude);
+            Log.v(TAG, "[DALVIKPOSITION] update to "+utcTimeMillis+", "+latitude+", "+longitude+", "+altitude);
         }
-        updatePositionNative(latitude, longitude, altitude);
+        updatePositionNative(utcTimeMillis, latitude, longitude, altitude, speed, bearing, accuracy);
     }
 
-    private native void updatePositionNative(double lat, double lon, double alt);
+    private native void updatePositionNative(long utcTimeMillis, double lat, double lon, double alt, double speed, double bearing, double accuracy);
 
     private Criteria getLocationProvider() {
         final Criteria criteria = new Criteria();
@@ -297,10 +307,14 @@ public class DalvikPositionService implements LocationListener {
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Double latitude = Double.valueOf(intent.getStringExtra(LATITUDE));
-            Double longitude = Double.valueOf(intent.getStringExtra(LONGITUDE));
-            Double altitude = Double.valueOf(intent.getStringExtra(ALTITUDE));
-            updatePosition(latitude, longitude, altitude);
+            long utcTimeMillis = Long.valueOf(intent.getStringExtra(UTC_TIME_MILLIS));
+            double latitude = Double.valueOf(intent.getStringExtra(LATITUDE));
+            double longitude = Double.valueOf(intent.getStringExtra(LONGITUDE));
+            double altitude = Double.valueOf(intent.getStringExtra(ALTITUDE));
+            double speed = Double.valueOf(intent.getStringExtra(SPEED));
+            double bearing = Double.valueOf(intent.getStringExtra(BEARING));
+            double accuracy = Double.valueOf(intent.getStringExtra(ACCURACY));
+            updatePosition(utcTimeMillis, latitude, longitude, altitude, speed, bearing, accuracy);
         }
     };
 }

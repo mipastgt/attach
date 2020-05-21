@@ -99,7 +99,10 @@ void setLocation(CLLocation *newLocation) {
         double lat = newLocation.coordinate.latitude;
         double lon = newLocation.coordinate.longitude;
         double alt = newLocation.altitude;
-        (*env)->CallStaticVoidMethod(env, mat_jPositionServiceClass, mat_jPositionService_setLocation, lat, lon, alt);
+        double speed = newLocation.speed;
+        double bearing = newLocation.course;
+        double accuracy = newLocation.horizontalAccuracy;
+        (*env)->CallStaticVoidMethod(env, mat_jPositionServiceClass, mat_jPositionService_setLocation, lat, lon, alt, speed, bearing, accuracy);
     }
 
 }
