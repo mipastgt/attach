@@ -27,6 +27,8 @@
  */
 package com.gluonhq.attach.util;
 
+import com.gluonhq.attach.util.impl.Debug;
+
 import java.util.Locale;
 import java.util.logging.Logger;
 
@@ -75,8 +77,9 @@ public enum Platform {
         current = valueOf(name);
         LOGGER.fine("Current platform: "  + current);
 
-        if (isAndroid()) {
-            System.loadLibrary("Util");
+        if (isAndroid() || isIOS()) {
+            System.loadLibrary(isAndroid() ? "util" : "Util");
+            Debug.init();
         }
     }
 

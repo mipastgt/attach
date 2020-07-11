@@ -50,7 +50,6 @@ static int positionInited = 0;
 jclass mat_jPositionServiceClass;
 jmethodID mat_jPositionService_setLocation = 0;
 Position *_position;
-BOOL debugPosition;
 
 JNIEXPORT void JNICALL Java_com_gluonhq_attach_position_impl_IOSPositionService_initPosition
 (JNIEnv *env, jclass jClass)
@@ -85,12 +84,6 @@ JNIEXPORT void JNICALL Java_com_gluonhq_attach_position_impl_IOSPositionService_
 {
     [_position stopObserver];
     return;   
-}
-
-JNIEXPORT void JNICALL Java_com_gluonhq_attach_position_impl_IOSPositionService_enableDebug
-(JNIEnv *env, jclass jClass)
-{
-    debugPosition = YES;
 }
 
 void setLocation(CLLocation *newLocation) {
@@ -147,7 +140,7 @@ void setLocation(CLLocation *newLocation) {
         }
     }
 
-    if (debugPosition)
+    if (debugAttach)
     {
         AttachLog(@"Start updating location with accuracy: %f", self.locationManager.desiredAccuracy);
     }
@@ -160,7 +153,7 @@ void setLocation(CLLocation *newLocation) {
 
 - (void)stopObserver 
 {
-    if (debugPosition)
+    if (debugAttach)
     {
         AttachLog(@"Stop updating location");
     }
@@ -169,13 +162,13 @@ void setLocation(CLLocation *newLocation) {
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
     CLLocation *newLocation = [locations lastObject];
-    if (debugPosition)
+    if (debugAttach)
     {
         AttachLog(@"NewLocation: %f, %f, %f", newLocation.coordinate.latitude, newLocation.coordinate.longitude, newLocation.altitude);
     }
     if (newLocation.horizontalAccuracy < 0) 
     {
-        if (debugPosition)
+        if (debugAttach)
         {
             AttachLog(@"iOS location update, horizontal accuracy too small: %.2f", newLocation.horizontalAccuracy);
         }
@@ -185,7 +178,7 @@ void setLocation(CLLocation *newLocation) {
     NSTimeInterval interval = [newLocation.timestamp timeIntervalSinceNow];
     if (interval < -5) 
     {
-        if (debugPosition)
+        if (debugAttach)
         {
             AttachLog(@"iOS location update, time interval to large (probably cached): %.2f", interval);
         }
