@@ -38,7 +38,7 @@ jmethodID jDalvikPositionServiceStopMethod;
 
 static void initializeGraalHandles(JNIEnv* env) {
     jGraalPositionClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/gluonhq/attach/position/impl/AndroidPositionService"));
-    jGraalSetLocationMethod = (*env)->GetStaticMethodID(env, jGraalPositionClass, "setLocation", "(DDD)V");
+    jGraalSetLocationMethod = (*env)->GetStaticMethodID(env, jGraalPositionClass, "setLocation", "(JDDDDDD)V");
 }
 
 static void initializeDalvikHandles() {
