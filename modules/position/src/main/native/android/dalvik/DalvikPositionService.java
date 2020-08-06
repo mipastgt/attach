@@ -119,7 +119,7 @@ public class DalvikPositionService implements LocationListener {
     public void onLocationChanged(Location location) {
         if (location != null) {
             if (debug) {
-                Log.v(TAG, String.format("Android location changed: &d / %f / %f / %f",
+                Log.v(TAG, String.format("Android location changed: %d / %f / %f / %f",
                     location.getTime(), location.getLatitude(), location.getLongitude(), location.getAltitude()));
             }
             updatePosition(location);
