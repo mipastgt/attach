@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2019, Gluon
+ * Copyright (c) 2018, 2020, Gluon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "AugmentedReality.h"
+#import <ModelIO/ModelIO.h>
+#import <SceneKit/ModelIO.h>
 
 // JNIEnv *env = NULL;
 
@@ -56,7 +58,7 @@ AugmentedReality *_ar;
 
 BOOL enableDebugAugmentedReality;
 
-JNIEXPORT jint JNICALL Java_com_gluonhq_attach_ar_impl_IOSAugmentedRealityService_initAR
+JNIEXPORT jint JNICALL Java_com_gluonhq_attach_augmentedreality_impl_IOSAugmentedRealityService_initAR
 (JNIEnv *myenv, jclass jClass)
 {
     if (AugmentedRealityInited)
@@ -65,7 +67,7 @@ JNIEXPORT jint JNICALL Java_com_gluonhq_attach_ar_impl_IOSAugmentedRealityServic
     }
     AugmentedRealityInited = 1;
 
-    mat_jAugmentedRealityServiceClass = (*myenv)->NewGlobalRef(myenv, (*myenv)->FindClass(myenv, "com/gluonhq/attach/ar/impl/IOSAugmentedRealityService"));
+    mat_jAugmentedRealityServiceClass = (*myenv)->NewGlobalRef(myenv, (*myenv)->FindClass(myenv, "com/gluonhq/attach/augmentedreality/impl/IOSAugmentedRealityService"));
     mat_jAugmentedRealityService_notifyCancel = (*myenv)->GetStaticMethodID(myenv, mat_jAugmentedRealityServiceClass, "notifyCancel", "()V");
 
     AttachLog(@"Init AugmentedReality");
@@ -85,13 +87,13 @@ JNIEXPORT jint JNICALL Java_com_gluonhq_attach_ar_impl_IOSAugmentedRealityServic
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_com_gluonhq_attach_ar_impl_IOSAugmentedRealityService_enableDebugAR
-(JNIEnv *env, jclass jClass)
+JNIEXPORT void JNICALL Java_com_gluonhq_attach_augmentedreality_impl_IOSAugmentedRealityService_enableDebugAR
+(JNIEnv *env, jclass jClass, jboolean enable)
 {
-    enableDebugAugmentedReality = YES;
+    enableDebugAugmentedReality = enable;
 }
 
-JNIEXPORT void JNICALL Java_com_gluonhq_attach_ar_impl_IOSAugmentedRealityService_showNativeAR
+JNIEXPORT void JNICALL Java_com_gluonhq_attach_augmentedreality_impl_IOSAugmentedRealityService_showNativeAR
 (JNIEnv *env, jclass jClass)
 {
     if (@available(iOS 11.3, *)) {
@@ -103,7 +105,7 @@ JNIEXPORT void JNICALL Java_com_gluonhq_attach_ar_impl_IOSAugmentedRealityServic
     return;
 }
 
-JNIEXPORT void JNICALL Java_com_gluonhq_attach_ar_impl_IOSAugmentedRealityService_setARModel
+JNIEXPORT void JNICALL Java_com_gluonhq_attach_augmentedreality_impl_IOSAugmentedRealityService_setARModel
 (JNIEnv *env, jclass jClass, jstring jObjFileName, jdouble scale)
 {
     const jchar *charsObjFileName = (*env)->GetStringChars(env, jObjFileName, NULL);
@@ -348,19 +350,20 @@ double modelScale = 1.0;
         [self logMessage:@"Result %@", result];      
 
         SCNNode *model = [[SCNNode new] autorelease];
-        // Create a new scene
-        if ([self.modelFileName length] > 0) {
-            SCNScene *scene = [SCNScene sceneNamed:self.modelFileName];
-            [self logMessage:@"Adding new scene %@", scene];
-            for (SCNNode *childNode in [[scene rootNode] childNodes]) {
-                [model addChildNode:childNode];
-            }
+        // Create a new model from obj file
+        if ([self.modelFileName length] > 0 &&
+            [[NSFileManager defaultManager] fileExistsAtPath:self.modelFileName]) {
+                [self logMessage:@"obj from resources, path: %@", self.modelFileName];
+            NSURL *url = [NSURL fileURLWithPath:self.modelFileName];
+            MDLAsset *asset = [[MDLAsset alloc]initWithURL:url];
+            SCNNode *objectNode = [SCNNode nodeWithMDLObject:[asset objectAtIndex:0]];
+            objectNode.transform = SCNMatrix4MakeScale(modelScale, modelScale, modelScale);
+            [model addChildNode:objectNode];
         } else {
             AttachLog(@"No model was set. Use AugmentedRealityService::setModel");
         }
         [self logMessage:@"node: %@", model];
-        SCNMatrix4 sc = SCNMatrix4MakeScale(modelScale, modelScale, modelScale);
-        model.transform = SCNMatrix4Mult(SCNMatrix4FromMat4(result.worldTransform), sc);
+        model.transform = SCNMatrix4FromMat4(result.worldTransform);
         [self.sceneView.scene.rootNode addChildNode:model];
     }    
 }
@@ -377,7 +380,7 @@ double modelScale = 1.0;
 
 -(void)OrientationDidChange:(NSNotification*)notification
 {
-    [self logMessage:@"adjustiong sceneView frame"];
+    [self logMessage:@"adjusting sceneView frame"];
     self.sceneView.frame = [[UIScreen mainScreen] bounds];
 }
 

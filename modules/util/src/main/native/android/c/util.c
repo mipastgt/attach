@@ -40,7 +40,9 @@ static jmethodID jUtilRequestPermissionsMethod;
 static jboolean initialized;
 
 // Attach classes
+static jclass jAccelerometerServiceClass;
 static jclass jAudioServiceClass;
+static jclass jAugmentedRealityServiceClass;
 static jclass jBatteryServiceClass;
 static jclass jBarcodeScanServiceClass;
 static jclass jBleServiceClass;
@@ -51,14 +53,18 @@ static jclass jDialerServiceClass;
 static jclass jDisplayServiceClass;
 static jclass jKeyboardServiceClass;
 static jclass jLifecycleServiceClass;
+static jclass jLocalNotificationsServiceClass;
 static jclass jMagnetometerServiceClass;
 static jclass jOrientationServiceClass;
 static jclass jPicturesServiceClass;
 static jclass jPositionServiceClass;
+static jclass jPushNotificationsServiceClass;
+static jclass jRuntimeArgsServiceClass;
 static jclass jSettingsServiceClass;
 static jclass jShareServiceClass;
 static jclass jStatusBarServiceClass;
 static jclass jStorageServiceClass;
+static jclass jVibrationServiceClass;
 static jclass jVideoServiceClass;
 
 static jmethodID loadClassMethod;
@@ -113,8 +119,16 @@ jclass substrateGetUtilClass() {
     return GETREGISTERCLASS(jUtilClass, "com/gluonhq/helloandroid/Util");
 }
 
+jclass substrateGetAccelerometerServiceClass() {
+    return GETREGISTERCLASS(jAccelerometerServiceClass, "com/gluonhq/helloandroid/DalvikAccelerometerService");
+}
+
 jclass substrateGetAudioServiceClass() {
     return GETREGISTERCLASS(jAudioServiceClass, "com/gluonhq/helloandroid/DalvikAudioService");
+}
+
+jclass substrateGetAugmentedRealityServiceClass() {
+    return GETREGISTERCLASS(jAugmentedRealityServiceClass, "com/gluonhq/helloandroid/DalvikAugmentedRealityService");
 }
 
 jclass substrateGetBatteryServiceClass() {
@@ -157,6 +171,10 @@ jclass substrateGetLifecycleServiceClass() {
     return GETREGISTERCLASS(jLifecycleServiceClass, "com/gluonhq/helloandroid/DalvikLifecycleService");
 }
 
+jclass substrateGetLocalNotificationsServiceClass() {
+    return GETREGISTERCLASS(jLocalNotificationsServiceClass, "com/gluonhq/helloandroid/DalvikLocalNotificationsService");
+}
+
 jclass substrateGetMagnetometerServiceClass() {
     return GETREGISTERCLASS(jMagnetometerServiceClass, "com/gluonhq/helloandroid/DalvikMagnetometerService");
 }
@@ -173,6 +191,14 @@ jclass substrateGetPositionServiceClass() {
     return GETREGISTERCLASS(jPositionServiceClass, "com/gluonhq/helloandroid/DalvikPositionService");
 }
 
+jclass substrateGetPushNotificationsServiceClass() {
+    return GETREGISTERCLASS(jPushNotificationsServiceClass, "com/gluonhq/helloandroid/DalvikPushNotificationsService");
+}
+
+jclass substrateGetRuntimeArgsServiceClass() {
+    return GETREGISTERCLASS(jRuntimeArgsServiceClass, "com/gluonhq/helloandroid/DalvikRuntimeArgsService");
+}
+
 jclass substrateGetSettingsServiceClass() {
     return GETREGISTERCLASS(jSettingsServiceClass, "com/gluonhq/helloandroid/DalvikSettingsService");
 }
@@ -187,6 +213,10 @@ jclass substrateGetStatusBarServiceClass() {
 
 jclass substrateGetStorageServiceClass() {
     return GETREGISTERCLASS(jStorageServiceClass, "com/gluonhq/helloandroid/DalvikStorageService");
+}
+
+jclass substrateGetVibrationServiceClass() {
+    return GETREGISTERCLASS(jVibrationServiceClass, "com/gluonhq/helloandroid/DalvikVibrationService");
 }
 
 jclass substrateGetVideoServiceClass() {
