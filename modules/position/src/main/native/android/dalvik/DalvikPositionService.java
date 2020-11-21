@@ -75,7 +75,7 @@ public class DalvikPositionService implements LocationListener {
     private boolean backgroundModeEnabled = false;
     private boolean running;
     private final boolean debug;
-    private final boolean gpsEnabled
+    private final boolean gpsEnabled;
 
     public DalvikPositionService(Activity activity) {
 
@@ -166,7 +166,7 @@ public class DalvikPositionService implements LocationListener {
         }
          
         if (gpsEnabled && locationProviders.contains(LocationManager.GPS_PROVIDER)) {
-            locationProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
+            locationProvider = LocationManager.GPS_PROVIDER;
         } else {
             locationProvider = locationManager.getBestProvider(getLocationProvider(), false);
         }
@@ -237,8 +237,10 @@ public class DalvikPositionService implements LocationListener {
         looperTask = new AndroidLooperTask() {
             @Override
             public void execute() {
-                locationManager.requestLocationUpdates(timeInterval, distanceFilter,
-                        getLocationProvider(), DalvikPositionService.this, this.getLooper());
+//                locationManager.requestLocationUpdates(timeInterval, distanceFilter,
+//                        getLocationProvider(), DalvikPositionService.this, this.getLooper());
+                locationManager.requestLocationUpdates(locationProvider, timeInterval, distanceFilter,
+                        DalvikPositionService.this, this.getLooper());
             }
         };
 
