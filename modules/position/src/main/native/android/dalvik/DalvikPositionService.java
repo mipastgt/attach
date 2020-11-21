@@ -75,6 +75,7 @@ public class DalvikPositionService implements LocationListener {
     private boolean backgroundModeEnabled = false;
     private boolean running;
     private final boolean debug;
+    private final boolean gpsEnabled
 
     public DalvikPositionService(Activity activity) {
 
@@ -83,7 +84,7 @@ public class DalvikPositionService implements LocationListener {
         if (debug) {
             Log.v(TAG, "Construct DalvikPositionService");
         }
-        boolean gpsEnabled = Util.verifyPermissions(Manifest.permission.ACCESS_COARSE_LOCATION) || 
+        gpsEnabled = Util.verifyPermissions(Manifest.permission.ACCESS_COARSE_LOCATION) || 
                 Util.verifyPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
         if (!gpsEnabled) {
             Log.v(TAG, "GPS disabled. ACCESS_COARSE_LOCATION or ACCESS_FINE_LOCATION permissions are required");
@@ -163,8 +164,12 @@ public class DalvikPositionService implements LocationListener {
         if (debug) {
             Log.v(TAG, String.format("Available location providers on this device: %s.", locationProviders.toString()));
         }
-        
-        locationProvider = locationManager.getBestProvider(getLocationProvider(), false);
+         
+        if (gpsEnabled && locationProviders.contains(LocationManager.GPS_PROVIDER)) {
+            locationProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
+        } else {
+            locationProvider = locationManager.getBestProvider(getLocationProvider(), false);
+        }
         if (debug) {
             Log.v(TAG, String.format("Picked %s as best location provider.", locationProvider));
         }
